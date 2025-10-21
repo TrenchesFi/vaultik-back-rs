@@ -1,0 +1,26 @@
+[package]
+name = "indexer-morpho"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "indexer-morpho"
+path = "bin/main.rs"
+
+[dependencies]
+app-config.workspace = true
+common-mem.workspace = true
+serde.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+tokio = { workspace = true, features = ["signal", "sync"] }
+axum = { version = "=0.8.6", default-features = false, features = ["http2", "tokio", "json"] }
+tower-http = { version = "=0.6.6", default-features = false, features = ["trace"] }
+alloy = { workspace = true, features = ["sol-types", "contract"] }
+alloy-rpc-client = { workspace = true, features = ["hyper"] }
+alloy-provider = { workspace = true, features = ["hyper"] }
+alloy-rpc-types-eth.workspace = true
+alloy-network.workspace = true
