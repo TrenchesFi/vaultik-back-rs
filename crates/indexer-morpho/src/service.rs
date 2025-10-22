@@ -164,13 +164,17 @@ where
 			// Query the interest rate model for the borrow rate.  The borrow
 			// rate is returned as a per‑second rate in WAD units.  We then
 			// exponentiate it over a year to obtain the borrow APY in WAD.
-			let irm = IIrm::new(params.irm, self.provider.clone());
-			let brate_wad = irm
-				.borrowRateView(params.clone(), market.clone())
-				.call()
-				.await
-				.context("borrowRateView")?;
-			let borrow_apy_wad = exp_wad(brate_wad, SECONDS_PER_YEAR as u128)?;
+			let borrow_apy_wad = if params.irm == Address::ZERO {
+				U256::ZERO
+			} else {
+				let irm = IIrm::new(params.irm, self.provider.clone());
+				let brate_wad = irm
+					.borrowRateView(params.clone(), market.clone())
+					.call()
+					.await
+					.context("borrowRateView")?;
+				exp_wad(brate_wad, SECONDS_PER_YEAR as u128)?
+			};
 
 			let tsupp_assets = U256::from(market.totalSupplyAssets);
 			let tbor_assets = U256::from(market.totalBorrowAssets);
