@@ -10,7 +10,9 @@ sol! {
     contract MetaMorpho {
         function MORPHO() external view returns (address);
         function supplyQueueLength() external view returns (uint256);
-        function supplyQueue(uint256 index) external view returns (bytes32); // Id
+        function supplyQueue(uint256 index) external view returns (bytes32);
+        function withdrawQueueLength() external view returns (uint256);
+        function withdrawQueue(uint256 index) external view returns (bytes32); // Id
         function fee() external view returns (uint96);
         function totalAssets() external view returns (uint256);
     }
@@ -19,6 +21,8 @@ sol! {
     contract IMorpho {
         // types
         type Id is bytes32;
+
+        #[derive(Debug)]
         struct MarketParams {
             address loanToken;
             address collateralToken;
@@ -26,6 +30,8 @@ sol! {
             address irm;
             uint256 lltv;
         }
+
+        #[derive(Debug)]
         struct Market {
             uint128 totalSupplyAssets;
             uint128 totalSupplyShares;

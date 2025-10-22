@@ -65,7 +65,7 @@ where
 		// format, and the number of markets in the vault's supply queue.
 		let call_morpho = MetaMorpho::MORPHOCall {};
 		let call_fee = MetaMorpho::feeCall {};
-		let call_supply_queue_len = MetaMorpho::supplyQueueLengthCall {};
+		let call_supply_queue_len = MetaMorpho::withdrawQueueLengthCall {};
 
 		let base_tx = TransactionRequest::default().with_to(vault_addr);
 
@@ -106,7 +106,7 @@ where
 		// Directly decode the fee and supply queue length values.
 		let vault_fee_wad_u96 = MetaMorpho::feeCall::abi_decode_returns(fee_raw.as_ref())?;
 		let vault_fee_wad = U256::from(vault_fee_wad_u96);
-		let n_markets_u256 = MetaMorpho::supplyQueueLengthCall::abi_decode_returns(sql_raw.as_ref())?;
+		let n_markets_u256 = MetaMorpho::withdrawQueueLengthCall::abi_decode_returns(sql_raw.as_ref())?;
 		let n_markets: usize = U256::from(n_markets_u256).to::<u128>() as usize;
 
 		// Load all market IDs in the supply queue.  We issue another batch of
@@ -117,7 +117,7 @@ where
 			let mut batch2 = BatchRequest::new(self.provider.client());
 			let mut waiters = Vec::with_capacity(n_markets);
 			for i in 0..n_markets {
-				let call = MetaMorpho::supplyQueueCall {
+				let call = MetaMorpho::withdrawQueueCall {
 					index: U256::from(i as u128),
 				};
 				let tx = base_tx.clone().with_input(Bytes::from(call.abi_encode()));
@@ -130,7 +130,7 @@ where
 			batch2.send().await.context("send batch 2 (supplyQueue[*])")?;
 			for (i, w) in waiters.into_iter().enumerate() {
 				let bytes = w.await.with_context(|| format!("supplyQueue({i}) batch response"))?;
-				let id = MetaMorpho::supplyQueueCall::abi_decode_returns(bytes.as_ref())?;
+				let id = MetaMorpho::withdrawQueueCall::abi_decode_returns(bytes.as_ref())?;
 				let id = B256::from(id);
 				market_ids.push(id);
 			}
